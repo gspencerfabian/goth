@@ -11,9 +11,9 @@ import (
 	"net/url"
 	"strings"
 
+	"fmt"
 	"github.com/markbates/goth"
 	"golang.org/x/oauth2"
-	"fmt"
 )
 
 const (
@@ -25,12 +25,13 @@ const (
 // New creates a new Google+ provider, and sets up important connection details.
 // You should always call `gplus.New` to get a new Provider. Never try to create
 // one manually.
-func New(clientKey, secret, callbackURL string, scopes ...string) *Provider {
+func New(clientKey, secret, hd, callbackURL string, scopes ...string) *Provider {
 	p := &Provider{
-		ClientKey:           clientKey,
-		Secret:              secret,
-		CallbackURL:         callbackURL,
-		providerName:        "gplus",
+		ClientKey:    clientKey,
+		Secret:       secret,
+		Hd:           hd,
+		CallbackURL:  callbackURL,
+		providerName: "gplus",
 	}
 	p.config = newConfig(p, scopes)
 	return p
@@ -40,6 +41,7 @@ func New(clientKey, secret, callbackURL string, scopes ...string) *Provider {
 type Provider struct {
 	ClientKey    string
 	Secret       string
+	Hd           string
 	CallbackURL  string
 	HTTPClient   *http.Client
 	config       *oauth2.Config
@@ -149,6 +151,7 @@ func newConfig(provider *Provider, scopes []string) *oauth2.Config {
 	c := &oauth2.Config{
 		ClientID:     provider.ClientKey,
 		ClientSecret: provider.Secret,
+		Hd:           provider.Hd,
 		RedirectURL:  provider.CallbackURL,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  authURL,
